@@ -1,8 +1,6 @@
-import React, { useState } from "react";
-import { trpc } from "../utils/trpc";
-import { todo } from "node:test";
+import { CSSProperties } from "react";
 
-const styles = {
+const styles: { [key: string]: CSSProperties } = {
   container: {
     display: "flex",
     justifyContent: "center",
@@ -60,28 +58,6 @@ const styles = {
 };
 
 const Test = () => {
-  const [inputValue, setInputValue] = useState("");
-  const test = trpc.test.useQuery();
-  // console.log(test);
-  const todos = trpc.getTodos.useQuery();
-  // console.log(todos.data?.map((data) => console.log(data)));
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
-
-  const addTodo = trpc.addTodo.useMutation({
-    onSettled: () => {
-      todos.refetch();
-    },
-  });
-
-  const deleteTodo = trpc.deleteTodo.useMutation({
-    onSettled: () => {
-      todos.refetch();
-    },
-  });
-
   return (
     <div style={styles.container}>
       <div style={styles.innerContainer}>
@@ -90,34 +66,13 @@ const Test = () => {
           type="text"
           placeholder="What needs to be done?"
           style={styles.input}
-          value={inputValue}
-          onChange={handleInputChange}
         />
-        <button
-          style={styles.addButton}
-          onClick={async () => {
-            addTodo.mutate(inputValue);
-            setInputValue("");
-          }}
-        >
-          Add Todo
-        </button>
+        <button style={styles.addButton}>Add Todo</button>
         <ul style={styles.list}>
-          {todos.data?.map((todo, index) => (
-            <li key={index} style={styles.listItem}>
-              {todo.content}
-              <span
-                style={styles.deleteButton}
-                onClick={async () => {
-                  // ここで削除用の関数を呼び出す
-                  // 例: deleteTodoFunction(todo.id);
-                  deleteTodo.mutate(todo.id);
-                }}
-              >
-                ✖
-              </span>
-            </li>
-          ))}
+          <li style={styles.listItem}>
+            TRPCの勉強
+            <span style={styles.deleteButton}>✖</span>
+          </li>
         </ul>
       </div>
     </div>

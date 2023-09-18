@@ -15,51 +15,61 @@ const t = initTRPC.create();
 const router = t.router;
 const publicProcedure = t.procedure;
 
-interface User {
+// interface User {
+//   id: string;
+//   name: string;
+// }
+
+// const userList: User[] = [
+//   {
+//     id: "1",
+//     name: "ShinCode",
+//   },
+// ];
+
+interface Todo {
   id: string;
-  name: string;
+  content: string;
 }
 
-const userList: User[] = [
+const todoList: Todo[] = [
   {
     id: "1",
-    name: "ShinCode",
+    content: "散歩",
+  },
+  {
+    id: "2",
+    content: "TRPCの勉強",
   },
 ];
 
 const appRouter = router({
-  hello: t.procedure.query(() => {
-    return "Hello World";
+  test: publicProcedure.query(() => {
+    return "TRPC TEST";
   }),
-  helloName: t.procedure
-    .input(z.object({ name: z.string(), age: z.number() }))
-    .query(({ input }) => {
-      return {
-        name: `Hello World ${input.name}`,
-        age: input.age,
-      };
-    }),
-  userById: publicProcedure
-    .input((val: unknown) => {
-      if (typeof val === "string") return val;
-      throw new Error(`Invalid input: ${typeof val}`);
-    })
-    .query((req) => {
-      const input = req.input;
-      const user = userList.find((it) => it.id === input);
-      return user;
-    }),
-  userCreate: publicProcedure
-    .input(z.object({ name: z.string() }))
-    .mutation((req) => {
-      const id = `${Math.random()}`;
-      const user: User = {
-        id,
-        name: req.input.name,
-      };
-      userList.push(user);
-      return user;
-    }),
+  getTodos: publicProcedure.query(() => {
+    return todoList;
+  }),
+  addTodo: publicProcedure.input(z.string()).mutation((req) => {
+    const id = `${Math.random()}`;
+    const todo: Todo = {
+      id,
+      content: req.input,
+    };
+    todoList.push(todo);
+    return todoList;
+  }),
+  deleteTodo: publicProcedure.input(z.string()).mutation((req) => {
+    const idToDelete = req.input;
+    const indexToDelete = todoList.findIndex((todo) => todo.id === idToDelete);
+
+    if (indexToDelete === -1) {
+      throw new Error(`Todo with id ${idToDelete} not found`);
+    }
+
+    todoList.splice(indexToDelete, 1);
+    return todoList;
+  }),
 });
 
 app.get("/", (req, res) => res.send("hello"));
